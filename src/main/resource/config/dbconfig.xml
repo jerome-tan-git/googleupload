@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<configure>
+        <DBConfigure>
+                <Tag>invdevdb</Tag>
+                <Url>jdbc:mysql://192.168.145.198:3306/test</Url>
+                <User>dt_cms_all</User>
+                <Password>Dt5Cy8MS</Password>
+                <maxConn>50</maxConn>
+                <Encoding>UTF-8</Encoding>
+        </DBConfigure>
+        <DBConfigure>
+                <Tag>invprodutiongadb</Tag>
+                <Url>jdbc:mysql://192.168.215.72:3306/INV_GA_Data</Url>
+                <User>dt_cms_all</User>
+                <Password>Dt5Cy8MS</Password>
+                <maxConn>50</maxConn>
+                <Encoding>UTF-8</Encoding>
+        </DBConfigure>
+</configure>
