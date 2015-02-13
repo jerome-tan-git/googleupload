@@ -160,7 +160,7 @@ public class DriveCommandLine {
 			String dataStrDesc = sdf.format(new Date());
 			String dataStrName = sdfName.format(new Date());
 			body.setTitle(this.fileTitle);
-			body.setDescription("update at: " + dataStrDesc);
+			body.setDescription("update at: " + dataStrDesc + " | " + System.currentTimeMillis());
 			body.setMimeType("application/x-twb");
 
 			// Set the parent folder.
@@ -203,9 +203,9 @@ public class DriveCommandLine {
 								result = true;
 							} else {
 								System.out.println("Get time stamp: "
-										+ timeStamp + " Current: "
-										+ System.currentTimeMillis() + "gap: " +(System.currentTimeMillis() - timeStamp)+ " < "
-										+ 24 * 3600 * 1000 + " skip upload!");
+										+ new Date(timeStamp).toLocaleString() + " Current: "
+										+ new Date(System.currentTimeMillis()).toLocaleString() + "gap: " +(System.currentTimeMillis() - timeStamp)+ " < "
+										+ 22 * 3600 * 1000 + " skip upload!");
 								result = false;
 							}
 							// System.out.println("create time: "

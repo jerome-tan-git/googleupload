@@ -1,18 +1,27 @@
 package com.ask.inv.google.dirve;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;  
 
 import javax.crypto.Cipher;  
 import javax.crypto.SecretKey;  
 import javax.crypto.SecretKeyFactory;  
 import javax.crypto.spec.DESKeySpec;
+import javax.crypto.spec.SecretKeySpec;
+
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.security.Key;
+
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
+
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 public class DESedeCoder  {  
 	  
@@ -115,19 +124,47 @@ public class DESedeCoder  {
      * 
      * @throws Exception
      */
+    
+    
+    public static byte[] decrypt(byte[] content, String password) {  
+        try {  
+                 KeyGenerator kgen = KeyGenerator.getInstance("AES");  
+                 kgen.init(128, new SecureRandom(password.getBytes()));  
+                 SecretKey secretKey = kgen.generateKey();  
+                 byte[] enCodeFormat = secretKey.getEncoded();  
+                 SecretKeySpec key = new SecretKeySpec(enCodeFormat, "AES");              
+                 Cipher cipher = Cipher.getInstance("AES");// 创建密码器   
+                cipher.init(Cipher.DECRYPT_MODE, key);// 初始化   
+                byte[] result = cipher.doFinal(content);  
+                return result; // 加密   
+        } catch (NoSuchAlgorithmException e) {  
+                e.printStackTrace();  
+        } catch (NoSuchPaddingException e) {  
+                e.printStackTrace();  
+        } catch (InvalidKeyException e) {  
+                e.printStackTrace();  
+        } catch (IllegalBlockSizeException e) {  
+                e.printStackTrace();  
+        } catch (BadPaddingException e) {  
+                e.printStackTrace();  
+        }  
+        return null;  
+}  
     public static void main(String[] args) throws Exception {
-        String str = "123!@#QWEqweE";
-        System.out.println("原文：" + str);
-        // 初始化密钥
-        byte[] key = Base64.decode("/imPE5FUDowZE4ltFWHsSVekH7nav0zl");
-        System.out.println("密钥：" + Base64.encode(key));
-        // 加密数据
-        byte[] data = DESedeCoder.encrypt(str.getBytes(), key);
-        String mi = Base64.encode(data);
-        System.out.println("加密后：" + mi);
-        // 解密数据
-//        String mi="O2mUilnGw84GwNk9DpzVOQ==";
-//        data = DESedeCoder.decrypt(Base64.decode(mi), Base64.decode("/imPE5FUDowZE4ltFWHsSVekH7nav0zl"));
-        System.out.println("解密后：" + new String(data));
+    	String a ="IsYKd77wHctiAQVaDpb0yVpk4XZOqPf7lgHy+dRkSVFvXV78vwgQdztUWRpRgBrP4Es1NMjOpwguFYr6qTm+vg==";
+    	System.out.println(DESedeCoder.decrypt(Base64.decode(a), "fKNAwo43MLI69gldyaexq4zblL2vPHlXLJD5GpHInTI"));
+//        String str = "123!@#QWEqweE";
+//        System.out.println("原文：" + str);
+//        // 初始化密钥
+//        byte[] key = Base64.decode("/imPE5FUDowZE4ltFWHsSVekH7nav0zl");
+//        System.out.println("密钥：" + Base64.encode(key));
+//        // 加密数据
+//        byte[] data = DESedeCoder.encrypt(str.getBytes(), key);
+//        String mi = Base64.encode(data);
+//        System.out.println("加密后：" + mi);
+//        // 解密数据
+////        String mi="O2mUilnGw84GwNk9DpzVOQ==";
+////        data = DESedeCoder.decrypt(Base64.decode(mi), Base64.decode("/imPE5FUDowZE4ltFWHsSVekH7nav0zl"));
+//        System.out.println("解密后：" + new String(data));
     }
 }  
