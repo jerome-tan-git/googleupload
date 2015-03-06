@@ -151,7 +151,7 @@ public class DriveCommandLine {
 		Drive service = new Drive.Builder(httpTransport, jsonFactory,
 				credential).build();
 
-		if (ifUpdate(service)) {
+		if (this.ifUpdate(service)) {
 
 			// Insert a file
 			File body = new File();
@@ -199,13 +199,13 @@ public class DriveCommandLine {
 						Boolean ifDelete = file.getExplicitlyTrashed();
 						if (ifDelete == null) {
 							long timeStamp = file.getCreatedDate().getValue();
-							if (System.currentTimeMillis() - timeStamp > 24 * 3600 * 1000) {
+							if (System.currentTimeMillis() - timeStamp > 12 * 3600 * 1000) {
 								result = true;
 							} else {
 								System.out.println("Get time stamp: "
 										+ new Date(timeStamp).toLocaleString() + " Current: "
 										+ new Date(System.currentTimeMillis()).toLocaleString() + "gap: " +(System.currentTimeMillis() - timeStamp)+ " < "
-										+ 22 * 3600 * 1000 + " skip upload!");
+										+ 12 * 3600 * 1000 + " skip upload!");
 								result = false;
 							}
 							// System.out.println("create time: "
