@@ -9,7 +9,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+
 import org.apache.log4j.Logger;
+
 import com.ask.inv.Util.ComUtil;
 import com.ask.inv.web.download.DownLoadBook;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -102,7 +104,7 @@ public class UploadDataToGoogleDrive {
 	    service = new Drive.Builder(httpTransport, jsonFactory, credential).build();
 	}
 	
-	public void downloadFileToDirve() {
+	public void downloadFileToDirve() throws Exception {
 		DownLoadBook downLoadBook = new DownLoadBook(loginUrl, loginName, loginPwd, downLoadUrl, filePath);
 		downLoadBook.DownLoadfile();
 		uploadFile();
@@ -283,8 +285,9 @@ public class UploadDataToGoogleDrive {
 
 	/**
 	 * @param args[0]:action=list,trash,delete,deleteExpiredFile
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		UploadDataToGoogleDrive upload = new UploadDataToGoogleDrive();
 		if (args != null && args.length > 0) {
 			String action = args[0];
