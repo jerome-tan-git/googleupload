@@ -13,6 +13,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.ask.inv.Util.ComUtil;
+import com.ask.inv.Util.GoogleDriveUtil;
 import com.ask.inv.web.download.DownLoadBook;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -40,8 +41,12 @@ public class UploadDataToGoogleDrive {
 	private String sharedEmailAddress = "";
 	private String sharedType="user";
 	private String sharedRole="reader";
+	private GoogleDriveUtil gDrive;
+	
+	
 	
 	public UploadDataToGoogleDrive() {
+		gDrive = new GoogleDriveUtil("35851040803-bt59pos1ge5bhb88f3051iqt018pnp7q@developer.gserviceaccount.com ", "./PK12.p12");
 		Properties prop = new Properties();
 		try {
 			prop.load(UploadDataToGoogleDrive.class.getClassLoader().getResourceAsStream("UploadDataToGoogleDrive.properties"));

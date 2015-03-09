@@ -61,16 +61,11 @@ public class DownloadUpload {
 		}
 		DownLoadBook dlb = new DownLoadBook(tableau_url, tableau_account,
 				tableau_password, download_url, fileName);
+		
 		dlb.DownLoadfile();
 		if (f.exists()) {
-			DriveCommandLine driveCommandLine = new DriveCommandLine(args[0],
-					google_doc_filename,google_account,google_password);
-			try {
-				driveCommandLine.uploadFile(fileName);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			DriveCommandLine driveCommandLine = new DriveCommandLine(fileName,"Master.twbx");
+			driveCommandLine.uploadFile();
 		}
 
 	}
