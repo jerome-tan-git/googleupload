@@ -64,7 +64,7 @@ public class DownloadUpload {
 		
 		dlb.DownLoadfile();
 		if (f.exists()) {
-			DriveCommandLine driveCommandLine = new DriveCommandLine(fileName,"Master.twbx");
+			DriveCommandLine driveCommandLine = new DriveCommandLine(fileName,"Master.twbx", args[0]);
 			driveCommandLine.uploadFile();
 		}
 

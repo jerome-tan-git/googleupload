@@ -61,10 +61,10 @@ public class DriveCommandLine {
 	private GoogleDriveUtil gDrive;
 	private String filePath = "";
 
-	public DriveCommandLine(String _filePath, String _fileTitle) {
+	public DriveCommandLine(String _filePath, String _fileTitle, String _pkFile) {
 		gDrive = new GoogleDriveUtil(
 				"35851040803-bt59pos1ge5bhb88f3051iqt018pnp7q@developer.gserviceaccount.com",
-				"./PK12.p12");
+				_pkFile);
 		this.filePath = _filePath;
 		this.fileTitle = _fileTitle;
 	}
@@ -197,7 +197,7 @@ public class DriveCommandLine {
 	// }
 	public static void main(String[] args) {
 
-		new DriveCommandLine("./Master_tmp.twbx", "Master.twbx").uploadFile();
+		new DriveCommandLine("./Master_tmp.twbx", "Master.twbx","./PK12.12").uploadFile();
 	}
 
 	// 0B-egulo89R22OVRESE1oZTVhX3c
