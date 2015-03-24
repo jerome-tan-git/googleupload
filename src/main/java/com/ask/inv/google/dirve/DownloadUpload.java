@@ -30,6 +30,15 @@ public class DownloadUpload {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		boolean forceDelete = false;
+		try
+		{
+			if(args[2].trim().equals("y"))
+			{
+				forceDelete = true;
+			}
+		}
+		catch(Exception e){}
 
 		/**
 		 * tableau_account=jetan tableau_password=123!@#QWEqweE
@@ -64,7 +73,7 @@ public class DownloadUpload {
 		
 		dlb.DownLoadfile();
 		if (f.exists()) {
-			DriveCommandLine driveCommandLine = new DriveCommandLine(fileName,"Master.twbx", args[0]);
+			DriveCommandLine driveCommandLine = new DriveCommandLine(fileName,"Master.twbx", args[0], forceDelete);
 			driveCommandLine.uploadFile();
 		}
 

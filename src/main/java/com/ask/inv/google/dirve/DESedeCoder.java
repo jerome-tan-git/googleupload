@@ -151,17 +151,18 @@ public class DESedeCoder  {
         return null;  
 }  
     public static void main(String[] args) throws Exception {
-    	String a ="IsYKd77wHctiAQVaDpb0yVpk4XZOqPf7lgHy+dRkSVFvXV78vwgQdztUWRpRgBrP4Es1NMjOpwguFYr6qTm+vg==";
-    	System.out.println(DESedeCoder.decrypt(Base64.decode(a), "fKNAwo43MLI69gldyaexq4zblL2vPHlXLJD5GpHInTI"));
-//        String str = "123!@#QWEqweE";
+//    	byte[] key = Base64.decode("/imPE5FUDowZE4ltFWHsSVekH7nav0zl");
+  //  	String a ="IsYKd77wHctiAQVaDpb0yVpk4XZOqPf7lgHy+dRkSVFvXV78vwgQdztUWRpRgBrP4Es1NMjOpwguFYr6qTm+vg==";
+//    	System.out.println(DESedeCoder.decrypt(Base64.decode(a), "fKNAwo43MLI69gldyaexq4zblL2vPHlXLJD5GpHInTI"));
+        String str = "123!@#QWEqweE";
 //        System.out.println("原文：" + str);
 //        // 初始化密钥
-//        byte[] key = Base64.decode("/imPE5FUDowZE4ltFWHsSVekH7nav0zl");
-//        System.out.println("密钥：" + Base64.encode(key));
+        byte[] key = Base64.decode("/imPE5FUDowZE4ltFWHsSVekH7nav0zl");
+        System.out.println("密钥：" + Base64.encode(key));
 //        // 加密数据
-//        byte[] data = DESedeCoder.encrypt(str.getBytes(), key);
-//        String mi = Base64.encode(data);
-//        System.out.println("加密后：" + mi);
+        byte[] data = DESedeCoder.encrypt(str.getBytes(), key);
+        String mi = Base64.encode(data);
+        System.out.println("加密后：" + mi);
 //        // 解密数据
 ////        String mi="O2mUilnGw84GwNk9DpzVOQ==";
 ////        data = DESedeCoder.decrypt(Base64.decode(mi), Base64.decode("/imPE5FUDowZE4ltFWHsSVekH7nav0zl"));

@@ -60,13 +60,14 @@ public class DriveCommandLine {
 	private String fileTitle = "Master.twbx";
 	private GoogleDriveUtil gDrive;
 	private String filePath = "";
-
-	public DriveCommandLine(String _filePath, String _fileTitle, String _pkFile) {
+	private boolean forceDelete = false; 
+	public DriveCommandLine(String _filePath, String _fileTitle, String _pkFile, boolean _forceDelete) {
 		gDrive = new GoogleDriveUtil(
 				"35851040803-bt59pos1ge5bhb88f3051iqt018pnp7q@developer.gserviceaccount.com",
 				_pkFile);
 		this.filePath = _filePath;
 		this.fileTitle = _fileTitle;
+		this.forceDelete = _forceDelete;
 	}
 
 	// public void initFolderAndPermission(String sharedEmailAddress) {
@@ -82,7 +83,7 @@ public class DriveCommandLine {
 	// gDrive.getFileList(null);
 	// }
 	public void uploadFile() {
-		if (this.ifUpdate()) {
+		if (this.ifUpdate() || this.forceDelete) {
 			File file = null;
 			String parentFolderId = "0B-egulo89R22OVRESE1oZTVhX3c";
 			java.io.File srcfile = new java.io.File(filePath);
@@ -138,9 +139,10 @@ public class DriveCommandLine {
 		List<File> fileList = this.gDrive.getFileList(null);
 		if (fileList != null && fileList.size() > 0) {
 			for (File file : fileList) {
-				// System.out.println(file.getTitle() + " | " +
-				// file.getExplicitlyTrashed() + " |" + file.getDownloadUrl());
+				
 				if (file.getTitle().trim().toLowerCase().equals("master.twbx")) {
+//					 System.out.println(file.getTitle() + " | " +
+//							 file.getExplicitlyTrashed() + " |" + file.getDownloadUrl() + " | " + file.getParents());
 					Boolean ifDelete = file.getExplicitlyTrashed();
 					if (ifDelete == null) {
 						long timeStamp = file.getCreatedDate().getValue();
@@ -197,7 +199,7 @@ public class DriveCommandLine {
 	// }
 	public static void main(String[] args) {
 
-		new DriveCommandLine("./Master_tmp.twbx", "Master.twbx","./PK12.12").uploadFile();
+		new DriveCommandLine("./Master_tmp.twbx", "Master.twbx","./PK12.12", false).uploadFile();
 	}
 
 	// 0B-egulo89R22OVRESE1oZTVhX3c

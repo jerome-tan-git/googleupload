@@ -54,9 +54,11 @@ public class DownLoadBook {
 
 	private void Login() throws Exception {
 		driver.get(loginUrl);
+		//System.out.println(driver.getPageSource());
 		driver.findElement(By.id(name_Id)).sendKeys(name);
 		driver.findElement(By.id(pwd_Id)).sendKeys(pwd);
 		driver.findElement(By.xpath(signIn)).submit();
+		/*
 		new WebDriverWait(driver, 10).until(ExpectedConditions.visibilityOf(driver.findElement(By.name("target_site"))));
 		
 		new Select(driver.findElement(By.name("target_site"))).selectByVisibleText("Investopedia");
@@ -68,13 +70,12 @@ public class DownLoadBook {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//new WebDriverWait(driver, 10).until(ExpectedConditions.)));
-//		driver.findElement(By.id(name_Id)).
 		String body = (driver.getPageSource());
 		if(!body.contains("Content"))
 		{
 			throw new Exception("No Content link");
 		}
+		*/
 		
 	}
 
