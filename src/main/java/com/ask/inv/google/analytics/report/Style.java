@@ -49,6 +49,8 @@ public class Style {
 	public static XSSFCellStyle detailLineBlStyle;
 	public static XSSFCellStyle headerBorderMediumBrnStyle;
 	public static XSSFCellStyle blankBrnStyle;
+	public static short percentFormat;
+	public static short numberFormat;
 	
 	public static void init(XSSFWorkbook xwb) {
 		XSSFCreationHelper helper= xwb.getCreationHelper();
@@ -107,7 +109,7 @@ public class Style {
 		detailBorderMediumStyle= xwb.createCellStyle();
 		detailBorderMediumStyle.setBorderBottom(HSSFCellStyle.BORDER_MEDIUM);
 		
-		short numberFormat = helper.createDataFormat().getFormat("#,##0");
+		numberFormat = helper.createDataFormat().getFormat("#,##0");
 		numberStyle= xwb.createCellStyle();
 		numberStyle.setDataFormat(numberFormat);
 		
@@ -284,5 +286,7 @@ public class Style {
 		
 		blankBrnStyle= xwb.createCellStyle();
 		blankBrnStyle.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		
+		percentFormat = helper.createDataFormat().getFormat("0%");
 	}
 }

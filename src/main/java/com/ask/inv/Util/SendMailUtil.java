@@ -197,7 +197,7 @@ public class SendMailUtil {
 	public void sendBatchReport(String attachments) {
 		sendBatchReport(mail_subject,attachments);
 	}
-	public void sendBatchReport() {
+	public void sendMail() {
 		HashMap<String, String> rootMap = new HashMap<String,String>();
 		rootMap.put("hi", mail_content_hi);
 		rootMap.put("content", mail_content);

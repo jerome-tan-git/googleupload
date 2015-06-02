@@ -4,11 +4,25 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.record.CFRuleRecord.ComparisonOperator;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.util.AreaReference;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFConditionalFormatting;
+import org.apache.poi.xssf.usermodel.XSSFConditionalFormattingRule;
+import org.apache.poi.xssf.usermodel.XSSFFontFormatting;
+import org.apache.poi.xssf.usermodel.XSSFPatternFormatting;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFSheetConditionalFormatting;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import com.ask.inv.google.analytics.model.GAReportInfo;
 
@@ -18,7 +32,7 @@ public class GAMarketingReportWorkbook {
 	public GAMarketingReportWorkbook(XSSFWorkbook xwb) {
 		Style.init(xwb);
 	}
-
+	
 	public void addHeaderColumn(XSSFSheet sheet, int j) {
 		XSSFRow row;
 		XSSFCell cell;
@@ -1130,6 +1144,292 @@ public class GAMarketingReportWorkbook {
 		cell.setCellStyle(Style.numberStyle);
 	}
 	
+	public void insertDetailColumn(XSSFSheet sheet, int j, String dateTo, GAReportInfo reportInfo, boolean newColumn) {
+		XSSFRow row;
+		XSSFCell cell;
+		// i is vertical rows, j is level cells
+		int i = 0;
+		
+		//date
+		row = getSheetRow(sheet, i++);
+		if (newColumn) {
+			cell=getSheetCell(row, j);
+			cell.setCellValue(stringToDate(dateTo));
+			cell.setCellStyle(Style.headerDateStyle);
+		}
+		
+		// FA Tool - Syndication
+		while (i < sheet.getLastRowNum()) {
+			row = getSheetRow(sheet, i++);
+			if (newColumn) {
+				cell = getSheetCell(row, j);
+				cell.setCellStyle(getSheetCell(row, j-1).getCellStyle());
+			}
+			if ("Syndication".equals(getSheetCell(row, 0).getStringCellValue())) {
+				break;
+			}
+		}
+		// Yahoo Sessions
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.headerLineStyle);
+		cell.setCellValue("");
+		// Yahoo Finance
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getYahooFinance());
+		// Yahoo Other
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getYahooOther());
+		// Yahoo Full Content
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getYahooFullContent());
+		// Yahoo SA Quote Pages
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberLineStyle);
+		cell.setCellValue(reportInfo.getYahooSAQuotePages());
+		// Yahoo No Repub
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		String startRef = getSheetCell(getSheetRow(sheet, i - 5), j).getReference();
+		String endRef = getSheetCell(getSheetRow(sheet, i - 2), j).getReference();
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellFormula("SUM(" + startRef + ":" + endRef + ")");
+		// Yahoo Repub
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberLineStyle);
+		cell.setCellValue(reportInfo.getYahooRepub());
+		// Yahoo Total
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberBoldStyle);
+		startRef = getSheetCell(getSheetRow(sheet, i - 3), j).getReference();
+		endRef = getSheetCell(getSheetRow(sheet, i - 2), j).getReference();
+		cell.setCellFormula(startRef + "+" + endRef);
+		
+		//blank
+		cell=getSheetCell(getSheetRow(sheet, i++), j);
+		cell.setCellValue("");
+		// Yahoo PVs
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.headerLineStyle);
+		cell.setCellValue("");
+		// Yahoo Finance
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getYahooFinancePvs());
+		// Yahoo Other
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getYahooOtherPvs());
+		// Yahoo Full Content
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getYahooFullContentPvs());
+		// Yahoo SA Quote Pages
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberLineStyle);
+		cell.setCellValue(reportInfo.getYahooSAQuotePagesPvs());
+		// Yahoo No Repub
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		startRef = getSheetCell(getSheetRow(sheet, i - 5), j).getReference();
+		endRef = getSheetCell(getSheetRow(sheet, i - 2), j).getReference();
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellFormula("SUM(" + startRef + ":" + endRef + ")");
+		// Yahoo Repub
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberLineStyle);
+		cell.setCellValue(reportInfo.getYahooRepubPvs());
+		// Yahoo Total
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberBoldStyle);
+		startRef = getSheetCell(getSheetRow(sheet, i - 3), j).getReference();
+		endRef = getSheetCell(getSheetRow(sheet, i - 2), j).getReference();
+		cell.setCellFormula(startRef + "+" + endRef);
+		
+		//blank
+		cell=getSheetCell(getSheetRow(sheet, i++), j);
+		cell.setCellValue("");
+		// Other Sessions
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.headerLineStyle);
+		cell.setCellValue("");
+		// Nasdaq
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getNasdaq());
+		// Forbes
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getForbes());
+		// Fox Business
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getFoxBusiness());
+		// MSN/NBC
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getMsnNbc());
+		// Google News
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getGoogleNews());
+		// Blackrock
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getBlackrock());
+		// Ask
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getAsk());
+		// Other
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberLineStyle);
+		cell.setCellValue(reportInfo.getOther());
+		// Other Total Sessions
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberBoldStyle);
+		startRef = getSheetCell(getSheetRow(sheet, i - 9), j).getReference();
+		endRef = getSheetCell(getSheetRow(sheet, i - 2), j).getReference();
+		cell.setCellFormula("SUM(" + startRef + ":" + endRef + ")");
+		
+		//blank
+		cell=getSheetCell(getSheetRow(sheet, i++), j);
+		cell.setCellValue("");
+		// Other PVs
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.headerLineStyle);
+		cell.setCellValue("");
+		// Nasdaq
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getNasdaqPvs());
+		// Forbes
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getForbesPvs());
+		// Fox Business
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getFoxBusinessPvs());
+		// MSN/NBC
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getMsnNbcPvs());
+		// Google News
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getGoogleNewsPvs());
+		// Blackrock
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getBlackrockPvs());
+		// Ask
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getAskPvs());
+		// Other
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberLineStyle);
+		cell.setCellValue(reportInfo.getOtherPvs());
+		// Other Total PVs
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberBoldStyle);
+		startRef = getSheetCell(getSheetRow(sheet, i - 9), j).getReference();
+		endRef = getSheetCell(getSheetRow(sheet, i - 2), j).getReference();
+		cell.setCellFormula("SUM(" + startRef + ":" + endRef + ")");
+		
+		// blank
+		cell=getSheetCell(getSheetRow(sheet, i++), j);
+		cell.setCellValue("");
+		cell=getSheetCell(getSheetRow(sheet, i++), j);
+		cell.setCellValue("");
+		cell=getSheetCell(getSheetRow(sheet, i++), j);
+		cell.setCellValue("");
+		// Social
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.headerBorderMediumFont14Style);
+		cell.setCellValue("");
+		// Social (All Networks
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.headerLineStyle);
+		cell.setCellValue("");
+		// All Visits
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getAllVisits());
+		// All PVs
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getAllPvs());
+		
+		//blank
+		cell=getSheetCell(getSheetRow(sheet, i++), j);
+		cell.setCellValue("");
+		// All Posts
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getAllPosts());
+		// All PVs from Posting
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberStyle);
+		cell.setCellValue(reportInfo.getAllPVsFromPosting());
+		
+		while (i <= sheet.getLastRowNum()) {
+			row = getSheetRow(sheet, i++);
+			if (newColumn) {
+				cell = getSheetCell(row, j);
+				cell.setCellStyle(getSheetCell(row, j-1).getCellStyle());
+				if ("Total".equals(getSheetCell(row, 0).getStringCellValue())) {
+					startRef = getSheetCell(getSheetRow(sheet, i - 5), j).getReference();
+					endRef = getSheetCell(getSheetRow(sheet, i - 2), j).getReference();
+					cell.setCellFormula("SUM(" + startRef + ":" + endRef + ")");
+				}
+			}
+		}
+	}
+	
     public void addMTDColumn(XSSFSheet sheet, int j, int currentMonthWeeks) {
     	XSSFRow row;
 		XSSFCell cell;
@@ -1895,6 +2195,145 @@ public class GAMarketingReportWorkbook {
 		ref1 = getSheetCell(row, j-currentMonthWeeks).getReference();
 		ref2 = getSheetCell(row, j-1).getReference();
 		cell.setCellFormula("SUM("+ref1 + ":" + ref2 + ")");
+	}
+    
+    public void updateMTDColumn(XSSFSheet sheet, int j, int currentMonthWeeks) {
+    	XSSFRow row;
+		XSSFCell cell;
+		// i is vertical rows, j is level cells
+		int i = 0;
+		String ref1,ref2,ref3;
+
+		//date
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellValue("MTD");
+		cell.setCellStyle(Style.headerBorderMediumBlStyle);
+
+		// FA Tool
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.headerLineBlStyle);
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberBlStyle);
+		ref1 = getSheetCell(row, j-currentMonthWeeks).getReference();
+		ref2 = getSheetCell(row, j-1).getReference();
+		cell.setCellFormula("SUM(" + ref1 + ":" + ref2 + ")");
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i-2), j).getReference();
+		cell.setCellStyle(Style.numberBlStyle);
+		cell.setCellFormula("SUM(" + ref1 + ")");
+
+		// blank
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.blankBlStyle);
+		// Total Marketing
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.headerBorderMediumFont14BlStyle2);
+		// Contributors Content
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+44), j).getReference();
+		ref2 = getSheetCell(getSheetRow(sheet, i+57), j).getReference();
+		cell.setCellStyle(Style.numberBlStyle);
+		cell.setCellFormula("(" + ref1 + "+" + ref2 + ")");
+		// Contributors/Writers Signed
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+16), j).getReference();
+		ref2 = getSheetCell(getSheetRow(sheet, i+182), j).getReference();
+		cell.setCellStyle(Style.numberBlStyle);
+		cell.setCellFormula(ref1 + "+" + ref2);
+		// Contributors Original
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+56), j).getReference();
+		cell.setCellStyle(Style.numberBlStyle);
+		cell.setCellFormula(ref1);
+		// Contributors Manual
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+86), j).getReference();
+		cell.setCellStyle(Style.numberBlStyle);
+		cell.setCellFormula(ref1);
+		// Contributors Feed
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+94), j).getReference();
+		cell.setCellStyle(Style.numberLineBlStyle);
+		cell.setCellFormula(ref1);
+		// Contributors Total
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberBoldBlStyle);
+		ref1 = getSheetCell(getSheetRow(sheet, i-4), j).getReference();
+		ref2 = getSheetCell(getSheetRow(sheet, i-2), j).getReference();
+		cell.setCellFormula("SUM(" + ref1 + ":" + ref2 + ")");
+		// Yahoo No Repub (PV)
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+110), j).getReference();
+		cell.setCellStyle(Style.numberBlStyle);
+		cell.setCellFormula(ref1);
+		// Yahoo Repub (PV)
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+110), j).getReference();
+		cell.setCellStyle(Style.numberLineBlStyle);
+		cell.setCellFormula(ref1);
+		// Yahoo Total (PV)
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberBoldBlStyle);
+		ref1 = getSheetCell(getSheetRow(sheet, i+110), j).getReference();
+		cell.setCellFormula(ref1);
+		// Social
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+138), j).getReference();
+		cell.setCellStyle(Style.numberBlStyle);
+		cell.setCellFormula(ref1);
+		// Other Syndication
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+130), j).getReference();
+		cell.setCellStyle(Style.numberLineBlStyle);
+		cell.setCellFormula(ref1);
+		// External: Yahoo + Social + Syndication
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i-4), j).getReference();
+		ref2 = getSheetCell(getSheetRow(sheet, i-3), j).getReference();
+		ref3 = getSheetCell(getSheetRow(sheet, i-2), j).getReference();
+		cell.setCellStyle(Style.numberBlStyle);
+		cell.setCellFormula("SUM("+ref1 + "," + ref2 + "," + ref3 + ")");
+		// Internal: Contributors
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i-8), j).getReference();
+		cell.setCellStyle(Style.numberBlStyle);
+		cell.setCellFormula(ref1);
+		// Total
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i-3), j).getReference();
+		ref2 = getSheetCell(getSheetRow(sheet, i-2), j).getReference();
+		cell.setCellStyle(Style.numberBorderMediumBlStyle);
+		cell.setCellFormula("SUM("+ref1 + ":" + ref2 + ")");
+		
+		while(i <= sheet.getLastRowNum()) {
+			row = getSheetRow(sheet, i++);
+			cell= getSheetCell(row, j);
+			if (cell.getCellType() == XSSFCell.CELL_TYPE_FORMULA && StringUtils.isNotEmpty(cell.getCellFormula())) {
+				ref1 = getSheetCell(row, j-currentMonthWeeks).getReference();
+				ref2 = getSheetCell(row, j-1).getReference();
+				cell.setCellFormula("SUM("+ref1 + ":" + ref2 + ")");
+			}
+		}
 	}
     
     public void addYTDColumn(XSSFSheet sheet, int j) {
@@ -2676,6 +3115,146 @@ public class GAMarketingReportWorkbook {
 		cell.setCellFormula("SUM(" + startRef + ":" + endRef + ")");
     }
 	
+    public void updateYTDColumn(XSSFSheet sheet, int j) {
+    	XSSFRow row;
+		XSSFCell cell;
+		// i is vertical rows, j is level cells
+		int i = 0;
+		String ref1,ref2,ref3;
+		
+		// date
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellValue("YTD");
+		cell.setCellStyle(Style.headerBorderMediumBrStyle);
+
+		// FA Tool
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.headerLineBrStyle);
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberBrStyle);
+		ref1 = getSheetCell(row, 1).getReference();
+		ref2 = getSheetCell(row, j-2).getReference();
+		cell.setCellFormula("SUM(" + ref1 + ":" + ref2 + ")");
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberBrStyle);
+		ref1 = getSheetCell(getSheetRow(sheet, i-2), j).getReference();
+		cell.setCellFormula("SUM(" + ref1 + ")");
+
+		// blank
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.blankBrStyle);
+		// Total Marketing
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.headerBorderMediumFont14BrStyle2);
+		// Contributors Content
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+44), j).getReference();
+		ref2 = getSheetCell(getSheetRow(sheet, i+57), j).getReference();
+		cell.setCellStyle(Style.numberBrStyle);
+		cell.setCellFormula("(" + ref1 + "+" + ref2 + ")");
+		// Contributors/Writers Signed
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+16), j).getReference();
+		ref2 = getSheetCell(getSheetRow(sheet, i+182), j).getReference();
+		cell.setCellStyle(Style.numberBrStyle);
+		cell.setCellFormula(ref1 + "+" + ref2);
+		// Contributors Original
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+56), j).getReference();
+		cell.setCellStyle(Style.numberBrStyle);
+		cell.setCellFormula(ref1);
+		// Contributors Manual
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+86), j).getReference();
+		cell.setCellStyle(Style.numberBrStyle);
+		cell.setCellFormula(ref1);
+		// Contributors Feed
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+94), j).getReference();
+		cell.setCellStyle(Style.numberLineBrStyle);
+		cell.setCellFormula(ref1);
+		// Contributors Total
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		cell.setCellStyle(Style.numberBoldBrStyle);
+		ref1 = getSheetCell(getSheetRow(sheet, i-4), j).getReference();
+		ref2 = getSheetCell(getSheetRow(sheet, i-2), j).getReference();
+		cell.setCellFormula("SUM(" + ref1 + ":" + ref2 + ")");
+		// Yahoo No Repub (PV)
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+110), j).getReference();
+		cell.setCellStyle(Style.numberBrStyle);
+		cell.setCellFormula(ref1);
+		// Yahoo Repub (PV)
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+110), j).getReference();
+		cell.setCellStyle(Style.numberLineBrStyle);
+		cell.setCellFormula(ref1);
+		// Yahoo Total (PV)
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+110), j).getReference();
+		cell.setCellStyle(Style.numberBoldBrStyle);
+		cell.setCellFormula(ref1);
+		// Social
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+138), j).getReference();
+		cell.setCellStyle(Style.numberBrStyle);
+		cell.setCellFormula(ref1);
+		// Other Syndication
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i+130), j).getReference();
+		cell.setCellStyle(Style.numberLineBrStyle);
+		cell.setCellFormula(ref1);
+		// External: Yahoo + Social + Syndication
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i-4), j).getReference();
+		ref2 = getSheetCell(getSheetRow(sheet, i-3), j).getReference();
+		ref3 = getSheetCell(getSheetRow(sheet, i-2), j).getReference();
+		cell.setCellStyle(Style.numberBrStyle);
+		cell.setCellFormula("SUM("+ref1 + "," + ref2 + "," + ref3 + ")");
+		// Internal: Contributors
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i-8), j).getReference();
+		cell.setCellStyle(Style.numberBrStyle);
+		cell.setCellFormula(ref1);
+		// Total
+		row = getSheetRow(sheet, i++);
+		cell=getSheetCell(row, j);
+		ref1 = getSheetCell(getSheetRow(sheet, i-3), j).getReference();
+		ref2 = getSheetCell(getSheetRow(sheet, i-2), j).getReference();
+		cell.setCellStyle(Style.numberBorderMediumBrStyle);
+		cell.setCellFormula("SUM("+ref1 + ":" + ref2 + ")");
+		
+		
+		while(i <= sheet.getLastRowNum()) {
+			row = getSheetRow(sheet, i++);
+			cell= getSheetCell(row, j);
+			if (cell.getCellType() == XSSFCell.CELL_TYPE_FORMULA && StringUtils.isNotEmpty(cell.getCellFormula())) {
+				ref1 = getSheetCell(row, 1).getReference();
+				ref2 = getSheetCell(row, j-2).getReference();
+				cell.setCellFormula("SUM(" + ref1 + ":" + ref2 + ")");
+			}
+		}
+    }
+	
 	public void addNotesColumn(XSSFSheet sheet, int j) {
 		XSSFRow row;
 		XSSFCell cell;
@@ -2733,7 +3312,7 @@ public class GAMarketingReportWorkbook {
 			cell.setCellStyle(Style.blankBrnStyle);
 		}
 	}
-	
+
 	public void hiddenRowsAndResize(XSSFSheet sheet, int j) {
 		XSSFRow row;
 		// hidden rows
@@ -2743,11 +3322,10 @@ public class GAMarketingReportWorkbook {
 		row.setZeroHeight(true);
 		row = getSheetRow(sheet, 3);
 		row.setZeroHeight(true);
-		
-		for (short k = 0; k <= j; k++) {
+		short k = 0;
+		for (; k <= j; k++) {
 			sheet.autoSizeColumn(k);
 		}
-		short k = 0;
 		for (k = 0; k <= j; k++) {
 			if (k != 0) {
 				if (k == j - 1) {
@@ -2764,6 +3342,198 @@ public class GAMarketingReportWorkbook {
 		
 		sheet.setZoom(80);
 	}
+	
+	public void hiddenRowsAndResizeForCompareSheet(XSSFSheet sheet, int j) {
+		XSSFRow row;
+		// hidden rows
+		row = getSheetRow(sheet, 1);
+		row.setZeroHeight(true);
+		row = getSheetRow(sheet, 2);
+		row.setZeroHeight(true);
+		row = getSheetRow(sheet, 3);
+		row.setZeroHeight(true);
+		
+		short k = 0;
+		for (; k <= j; k++) {
+			sheet.autoSizeColumn(k);
+		}
+		for (k = 0; k <= j; k++) {
+			if (k != 0) {
+				sheet.setColumnWidth(k, sheet.getColumnWidth(k) + 1024);
+			}
+		}
+		
+		sheet.setZoom(80);
+	}
+	
+	public void addCompareSheetHeaderColumn(XSSFSheet sheet, XSSFSheet currentYearSheet) {
+		XSSFCell cell, cell2;
+		for (int i = 0; i <= currentYearSheet.getLastRowNum(); i++) {
+			cell=getSheetCell(getSheetRow(sheet, i), 0);
+			cell2=getSheetCell(getSheetRow(currentYearSheet, i), 0);
+			cell.setCellValue(cell2.getStringCellValue());
+			cell.setCellStyle(cell2.getCellStyle());
+		}
+	}
+	
+	public int getStartReference(XSSFSheet sheet) {
+		int startReference = 110;
+		for (int i = 0; i <= sheet.getLastRowNum(); i++) {
+			XSSFRow row = sheet.getRow(i);
+			if (row != null) {
+				XSSFCell cell = row.getCell(0);
+				if (cell != null && "Syndication".equals(cell.getStringCellValue())) {
+					startReference = i + 2;
+					break;
+				}
+			}
+		}
+		return startReference;
+	}
+	
+	public void addCompareSheetDetailColumn(XSSFSheet sheet, int j, String dateTo, XSSFSheet pastYearSheet, XSSFSheet currentYearSheet) {
+		String currentYearSheetRef = "'" + currentYearSheet.getSheetName() + "'!";
+		String pastYearSheetRef = "'" + pastYearSheet.getSheetName() + "'!";
+		int compareSheetStartRef = getStartReference(sheet);
+		int currentYearSheetStartRef = getStartReference(currentYearSheet);
+		int pastYearSheetStartRef = getStartReference(pastYearSheet);
+		if (j == 0) {
+			compareSheetStartRef = currentYearSheetStartRef;
+		}
+		//blankIndex
+		Set<Integer> blankIndexSet = new HashSet<Integer>();
+		blankIndexSet.add(compareSheetStartRef+7);
+		blankIndexSet.add(compareSheetStartRef+8);
+		blankIndexSet.add(compareSheetStartRef+16);
+		blankIndexSet.add(compareSheetStartRef+17);
+		blankIndexSet.add(compareSheetStartRef+27);
+		blankIndexSet.add(compareSheetStartRef+28);
+		blankIndexSet.add(compareSheetStartRef+38);
+		blankIndexSet.add(compareSheetStartRef+39);
+		blankIndexSet.add(compareSheetStartRef+40);
+		blankIndexSet.add(compareSheetStartRef+41);
+		blankIndexSet.add(compareSheetStartRef+42);
+		blankIndexSet.add(compareSheetStartRef+45);
+		
+		XSSFCell cell, cell2, cell0;
+		int compareSheetEndRef = compareSheetStartRef+47;
+		for (int i = 0; i <= currentYearSheet.getLastRowNum(); i++) {
+			cell=getSheetCell(getSheetRow(sheet, i), j);
+			cell2=getSheetCell(getSheetRow(currentYearSheet, i), j);
+			if (i >= compareSheetStartRef && i<= compareSheetEndRef) {
+				if (!blankIndexSet.contains(i)) {
+					String currentRef = getSheetCell(getSheetRow(currentYearSheet, currentYearSheetStartRef), j).getReference();
+					String pastRef = getSheetCell(getSheetRow(pastYearSheet, pastYearSheetStartRef), j).getReference();
+					cell.setCellFormula("IFERROR((" + currentYearSheetRef + currentRef + "/" + pastYearSheetRef + pastRef + "-1),\"NA\")");
+					XSSFCellStyle cellStyle = null;
+					if (j == 0) {
+						cellStyle = cell2.getCellStyle();
+					} else {
+						cellStyle = getSheetCell(getSheetRow(sheet, i), j-1).getCellStyle();
+					}
+					if (cellStyle != null) {
+						XSSFCellStyle newCellStyle = (XSSFCellStyle)cellStyle.clone();
+						newCellStyle.setDataFormat(Style.percentFormat);
+						cell.setCellStyle(newCellStyle);
+					}
+				} else {
+					if (j == 0 || i == 0) {
+						setCellValueForCompareSheet(cell, cell2);
+					} else {
+						cell0 = getSheetCell(getSheetRow(sheet, i), j-1);
+						XSSFCellStyle cellStyle = cell0.getCellStyle();
+						if (cellStyle != null) {
+							if (j == 1) {
+								XSSFCellStyle newCellStyle = (XSSFCellStyle)cellStyle.clone();
+								newCellStyle.setDataFormat(Style.numberFormat);
+								cell.setCellStyle(newCellStyle);
+							} else {
+								cell.setCellStyle(cellStyle);
+							}
+						}
+					}
+				}
+				
+				currentYearSheetStartRef++;
+				pastYearSheetStartRef++;
+				compareSheetStartRef++;
+			} else {
+				if (j == 0 || i == 0) {
+					setCellValueForCompareSheet(cell, cell2);
+				} else {
+					cell0 = getSheetCell(getSheetRow(sheet, i), j-1);
+					XSSFCellStyle cellStyle = cell0.getCellStyle();
+					if (cellStyle != null) {
+						if (j == 1) {
+							XSSFCellStyle newCellStyle = (XSSFCellStyle)cellStyle.clone();
+							newCellStyle.setDataFormat(Style.numberFormat);
+							cell.setCellStyle(newCellStyle);
+						} else {
+							cell.setCellStyle(cellStyle);
+						}
+					}
+				}
+			}
+		}
+		
+		// set ConditionalFormat
+		XSSFSheetConditionalFormatting scf = sheet.getSheetConditionalFormatting();
+		XSSFConditionalFormatting cf = null;
+		int conditionalNum = scf.getNumConditionalFormattings();
+		if (conditionalNum > 0) {
+			cf = scf.getConditionalFormattingAt(0);
+		}
+			
+		XSSFConditionalFormattingRule rule = null;
+		if (cf == null) {
+			rule = scf.createConditionalFormattingRule(ComparisonOperator.LT, "0", null);
+			XSSFPatternFormatting cf_Rb = rule.createPatternFormatting();
+			cf_Rb.setFillBackgroundColor(IndexedColors.CORAL.getIndex());
+			cf_Rb.setFillPattern(CellStyle.SOLID_FOREGROUND);
+			XSSFFontFormatting cf_Rf = rule.createFontFormatting();
+			cf_Rf.setFontColorIndex(IndexedColors.DARK_RED.getIndex());
+		} else {
+			rule = cf.getRule(0);
+		}
+		
+		if (rule != null) {
+			CellReference crA = new CellReference(sheet.getFirstRowNum(), sheet.getRow(0).getFirstCellNum());
+			CellReference crB = new CellReference(sheet.getLastRowNum(), sheet.getRow(0).getLastCellNum());
+			AreaReference ar = new AreaReference(crA, crB);
+			CellRangeAddress[] regions = {CellRangeAddress.valueOf(ar.formatAsString())};
+			scf.addConditionalFormatting(regions, rule);
+			if (scf.getNumConditionalFormattings() > conditionalNum && conditionalNum > 0) {
+				scf.removeConditionalFormatting(0);
+			}
+		}
+    }
+	
+	private void setCellValueForCompareSheet(XSSFCell cell, XSSFCell cell2) {
+		switch (cell2.getCellType()) {
+		case XSSFCell.CELL_TYPE_STRING:
+			cell.setCellValue(cell2.getStringCellValue());
+			break;
+		case XSSFCell.CELL_TYPE_NUMERIC:
+			cell.setCellValue(cell2.getNumericCellValue());
+			break;
+		case XSSFCell.CELL_TYPE_BOOLEAN:
+			cell.setCellValue(cell2.getBooleanCellValue());
+			break;
+		case XSSFCell.CELL_TYPE_FORMULA:
+			cell.setCellFormula(cell2.getCellFormula());
+			break;
+		case XSSFCell.CELL_TYPE_ERROR:
+			cell.setCellErrorValue(cell2.getErrorCellValue());
+			break;
+		case XSSFCell.CELL_TYPE_BLANK:
+			cell.setCellValue("");
+			break;
+		default:
+			break;
+		}
+		cell.setCellStyle(cell2.getCellStyle());
+	}
+	
 	public XSSFRow getSheetRow(XSSFSheet sheet, int rownum) {
     	if (sheet == null) {
     		return null;

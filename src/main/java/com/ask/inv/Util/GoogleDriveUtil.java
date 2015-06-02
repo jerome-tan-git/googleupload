@@ -108,7 +108,7 @@ public class GoogleDriveUtil {
 				if (fileName == null || title != null && title.indexOf(fileName) != -1) {
 					fileList.add(file);
 					i++;
-					//System.out.println("file title=" + file.getTitle() + ", file id=" + file.getId() + ", file time=" + file.getModifiedDate());
+					logger.debug("file title=" + file.getTitle() + ", file id=" + file.getId() + ", file time=" + file.getModifiedDate());
 				}
 				
 			}
